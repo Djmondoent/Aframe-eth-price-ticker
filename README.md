@@ -35,9 +35,9 @@ updateInterval: Interval (in milliseconds) between API calls to update the Ether
 currency: The currency used to display the Ethereum price (default: 'usd')
 For example:
 
-html
-Copy code
+html Copy code
 <a-entity eth-price-ticker="updateInterval: 10000; currency: eur" position="0 1.5 -5"></a-entity>
+
 API
 This component uses the CoinGecko API to retrieve the Ethereum price. No API key is required.
 
