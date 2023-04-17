@@ -1,32 +1,35 @@
 
-  AFRAME.registerComponent('mirror-renderer', {
-    schema: {
-      target: { type: 'selector' }
-    },
+<script>
+      AFRAME.registerComponent("eth-price-ticker", {
+        schema: {
+          interval: { type: "number", default: 19000 }, // 1 minute interval (in milliseconds)
+        },
 
-    init: function() {
-      const sceneEl = this.el.sceneEl;
-      const target = this.data.target;
-      const renderer = sceneEl.renderer;
+        init: function () {
+          this.updatePrice = this.updatePrice.bind(this);
+          this.tick = AFRAME.utils.throttleTick(
+            this.tick,
+            this.data.interval,
+            this
+          );
+          this.updatePrice();
+        },
 
-      this.renderTarget = new THREE.WebGLRenderTarget(1024, 1024);
-      this.oldTarget = renderer.getRenderTarget();
-      this.camera = new THREE.PerspectiveCamera();
+        updatePrice: async function () {
+          try {
+            const response = await fetch(
+              "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd"
+            );
+            const data = await response.json();
+            const ethPrice = data.ethereum.usd.toFixed(2);
+            this.el.setAttribute("text", "value", `ETH Price: $${ethPrice}`);
+          } catch (error) {
+            console.error("Error fetching ETH price:", error);
+          }
+        },
 
-      target.object3D.add(this.camera);
-    },
-
-    tick: function() {
-      const renderer = this.el.sceneEl.renderer;
-
-      renderer.setRenderTarget(this.renderTarget);
-      renderer.render(this.el.sceneEl.object3D, this.camera);
-      renderer.setRenderTarget(this.oldTarget);
-    },
-
-    remove: function() {
-      this.camera.parent.remove(this.camera);
-      this.renderTarget.dispose();
-    }
-  });
-
+        tick: function () {
+          this.updatePrice();
+        },
+      });
+    </script>
